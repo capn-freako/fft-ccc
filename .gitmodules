@@ -1,0 +1,3 @@
+[submodule "netlist"]
+	path = netlist
+	url = https://github.com/ku-fpg/netlist.git
