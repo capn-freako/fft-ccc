@@ -174,7 +174,7 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Understanding-Conal's-Genius">Understanding Conal's Genius<a class="anchor-link" href="#Understanding-Conal's-Genius">&#182;</a></h1><p>One dwarf's glimpse of a wizard's eye view of the power and elegance of functor composition.</p>
+<h1 id="From-List-to-Functor-Composition">From List to Functor Composition<a class="anchor-link" href="#From-List-to-Functor-Composition">&#182;</a></h1><p>Musings on the fundamental nature of the <em>Fast Fourier Transform</em>.</p>
 <p>Original author: David Banas <capn.freako@gmail.com><br>
 Original date: November 23, 2015</p>
 <p>Copyright (c) 2015 David Banas, except where copied with permission and noted.<br>
@@ -202,28 +202,17 @@ All rights reserved World wide.</p>
 </li>
 </ul>
 </li>
+<li><a href="#afterword">Afterword</a></li>
 </ul>
 <h2 id="Introduction-">Introduction <a name="introduction" /><a class="anchor-link" href="#Introduction-">&#182;</a></h2><p>About 2 years ago, I listened to Conal Elliott give a talk at the <em>Haskell Hackers at the Hacker Dojo</em> meetup on having achieved new levels of efficiency of implementation of the <em>parallel scan</em> algorithm. I got very excited about this, because parallel scan is one of these algorithms, which greatly benefits from a logarithmic "divide and conquer" breakdown in which the problem of calculating scan of some data structure is broken down into finding the scan of a number of subsets of the original data set, recombining these sub-results to form the final answer. By doing so, some redundancy in the more straightforward approach is removed, and the total work required to complete the calculation reduced from, typically, $O(N^2)$ to $O(Nlog_2N)$.</p>
 <p>I use another member of this class of algorithm in my daily work: the <em>Fast Fourier Transform</em> (FFT). I, like most, had always assumed that $O(N log_2 N)$ was the best we could do in calculating the FFT of a data set. After hearing Conal's talk, I wondered if this was really true. I began a Haskell project to start investigating this: <a href="https://wiki.haskell.org/Treeviz">TreeViz</a>. When I showed TreeViz to Conal, he was intrigued, but noted that I'd made an unfortunate choice: I'd "hard-wired" my implementation to be dependent upon the <em>List</em> functor as the enclosing data container. (At that time, I hadn't made it very far past List, with regard to my Haskelling.)</p>
 <p>Conal suggested that we search for a more generic mode of expressing the FFT computation. This <a href="https://github.com/gibiansky/ihaskell">IHaskell</a> notebook attempts to capture the historical record of our journey from the List-centric implementation in TreeViz to a very recent breakthrough of Conal's, which has enabled a completely generic expression of the FFT, valid for a much broader class of functors.</p>
-<p>Note: In order to use this notebook and play with the code, you will need to install the following Haskell packages into your <em>global</em> package database:</p>
+<p>Note: In order to use this notebook and play with the code, you will need to install the following Haskell packages:</p>
 <ul>
 <li>TypeCompose</li>
 <li>treeviz</li>
 </ul>
-<p>(This is necessary because, currently, the <em>IHaskell Notebook</em> only "sees" the <em>global</em> package database, not the <em>user</em> database.)</p>
-<p>Please, note that this is always risky. I use the following sequence of commands, for each package installation, in order to assess the risk:</p>
-<p>First, I check for the possibility of getting sucked into Cabal dependency chain Hell, with:</p>
-
-<pre><code>$ sudo cabal --ignore-sandbox install --global --dry-run --only-dependencies &lt;package_name&gt;</code></pre>
-<p>And I only proceed, if all dependencies have already been met.<br>
-Then, just for extra peace of mind:</p>
-
-<pre><code>$ sudo cabal --ignore-sandbox install --global --dry-run &lt;package_name&gt;</code></pre>
-<p>And, finally, only if no problems were detected, above:</p>
-
-<pre><code>$ sudo cabal --ignore-sandbox install --global &lt;package_name&gt;</code></pre>
-<p>As you'll see, below, the above procedure didn't work for every package needed, on my system. For those, which couldn't be installed globally, using the above procedure, I have had to copy the source into the code, here. Note that anywhere, below, where I've had to do this I have:</p>
+<p>For those packages, which are more intimately involved with the development of my own code, I have opted to copy the source into the code, here. Note that anywhere, below, where I've done this I have:</p>
 <ul>
 <li>Provided a link for skipping over these "psuedo-imports".</li>
 <li>Gotten permission from the original copyright holder to perform the copying.</li>
@@ -240,7 +229,7 @@ $$<p>It can be expressed, in Haskell, using a straightforward translation of the
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="cm">{-# LANGUAGE Rank2Types #-}</span>
@@ -294,7 +283,7 @@ $$<p>It can be expressed, in Haskell, using a straightforward translation of the
 
 
 <div class="output_text output_subarea ">
-<pre>2015-12-16 15:57:38.999764 UTC</pre>
+<pre>2016-01-20 01:37:58.248761 UTC</pre>
 </div>
 
 </div>
@@ -360,7 +349,7 @@ $$<p>where:</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="kr">import</span> <span class="nn">System.Random</span>
@@ -418,11 +407,7 @@ $$<p>where:</p>
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>The code worked and was much more succint and readable than an equivalent implementation in, say, C. However, the explicit dependency upon the <em>List</em> functor, sprinkled throughout the <strong>radix2_DIT</strong> definition, was problematic. We wanted to be able to express the FFT more generally.</p>
 <p><a href="#contents">Back to Contents</a></p>
-<h3 id="Using-Circat-">Using Circat <a name="using_circat" /><a class="anchor-link" href="#Using-Circat-">&#182;</a></h3><p>Our next step involved using the data structures and associated functions in Conal's <em>Circat</em> project, to express the FFT in terms of perfect binary trees. Normally, I just import everything I need. However, here, I recreate these definitions, for two reasons:</p>
-<ul>
-<li><em>IHaskell</em>, currently, has an issue whereby it only "sees" the <em>global</em> package database, and I have all of this stuff installed in my <em>user</em> package database, as per normal operating procedure.</li>
-<li>Explicitly recreating these dependencies makes this notebook more self-contained and less fragile.</li>
-</ul>
+<h3 id="Using-Circat-">Using Circat <a name="using_circat" /><a class="anchor-link" href="#Using-Circat-">&#182;</a></h3><p>Our next step involved using the data structures and associated functions in Conal's <em>Circat</em> project, to express the FFT in terms of perfect binary trees. Normally, I just import everything I need. However, here I recreate these definitions, so as to make this notebook more self-contained and descriptive, and less fragile.</p>
 <p>You can <a href="#fft_via_rtree">skip over these recreated imports</a>, if you wish.</p>
 
 </div>
@@ -430,16 +415,13 @@ $$<p>where:</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="kr">import</span> <span class="nn">Control.Applicative</span>
 <span class="kr">import</span> <span class="nn">Control.Arrow</span> <span class="p">((</span><span class="o">&amp;&amp;&amp;</span><span class="p">))</span>
 <span class="kr">import</span> <span class="nn">Data.Traversable</span>
 <span class="kr">import</span> <span class="nn">Data.Tuple</span> <span class="p">(</span><span class="nf">swap</span><span class="p">)</span>
-
-<span class="c1">-- Recreating some things, which should be imports,</span>
-<span class="c1">-- due to IHaskell global/local issue:</span>
 
 <span class="c1">-----------------------------------------------------------------------</span>
 <span class="c1">-- import TypeUnary.Nat</span>
@@ -612,7 +594,7 @@ $$<p>where:</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="c1">-----------------------------------------------------------------------</span>
@@ -625,11 +607,11 @@ $$<p>where:</p>
 
 <span class="nf">fft_r2_dit&#39;</span> <span class="ow">::</span> <span class="p">(</span><span class="kt">RealFloat</span> <span class="n">a</span><span class="p">,</span> <span class="kt">Enum</span> <span class="n">a</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="kt">Nat</span> <span class="n">n</span> <span class="ow">-&gt;</span> <span class="kt">RTree</span> <span class="n">n</span> <span class="p">(</span><span class="kt">Complex</span> <span class="n">a</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">RTree</span> <span class="n">n</span> <span class="p">(</span><span class="kt">Complex</span> <span class="n">a</span><span class="p">)</span>
 <span class="nf">fft_r2_dit&#39;</span> <span class="kt">Zero</span>     <span class="ow">=</span> <span class="n">id</span>
-<span class="nf">fft_r2_dit&#39;</span> <span class="p">(</span><span class="kt">Succ</span> <span class="n">n</span><span class="p">)</span> <span class="ow">=</span> <span class="n">r_toB</span>                                  <span class="c1">-- concatenation of results</span>
-                       <span class="o">.</span> <span class="n">inP</span> <span class="p">(</span><span class="n">uncurry</span> <span class="p">(</span><span class="o">+</span><span class="p">)</span> <span class="o">&amp;&amp;&amp;</span> <span class="n">uncurry</span> <span class="p">(</span><span class="o">-</span><span class="p">))</span>  <span class="c1">-- sum &amp; difference of sub-transforms</span>
-                       <span class="o">.</span> <span class="n">secondP</span> <span class="p">(</span><span class="n">liftA2</span> <span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="p">(</span><span class="n">phasor</span> <span class="n">n</span><span class="p">))</span>    <span class="c1">-- application of &quot;twiddle&quot; factors to 2nd sub-xform</span>
-                       <span class="o">.</span> <span class="n">fmap</span> <span class="p">(</span><span class="n">fft_r2_dit&#39;</span> <span class="n">n</span><span class="p">)</span>               <span class="c1">-- recursive application of FFT</span>
-                       <span class="o">.</span> <span class="n">bottomSplit</span>                        <span class="c1">-- Break in half, via de-interleaving (i.e. - DIT).</span>
+<span class="nf">fft_r2_dit&#39;</span> <span class="p">(</span><span class="kt">Succ</span> <span class="n">n</span><span class="p">)</span> <span class="ow">=</span> <span class="n">r_toB</span>                              <span class="c1">-- concatenation of sub-results</span>
+                     <span class="o">.</span> <span class="n">inP</span> <span class="p">(</span><span class="n">uncurry</span> <span class="p">(</span><span class="o">+</span><span class="p">)</span> <span class="o">&amp;&amp;&amp;</span> <span class="n">uncurry</span> <span class="p">(</span><span class="o">-</span><span class="p">))</span>  <span class="c1">-- sum &amp; difference of sub-transforms</span>
+                     <span class="o">.</span> <span class="n">secondP</span> <span class="p">(</span><span class="n">liftA2</span> <span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="p">(</span><span class="n">phasor</span> <span class="n">n</span><span class="p">))</span>    <span class="c1">-- application of &quot;twiddle&quot; factors to 2nd sub-xform</span>
+                     <span class="o">.</span> <span class="n">fmap</span> <span class="p">(</span><span class="n">fft_r2_dit&#39;</span> <span class="n">n</span><span class="p">)</span>               <span class="c1">-- recursive application of FFT (Note depth reduction.)</span>
+                     <span class="o">.</span> <span class="n">bottomSplit</span>                        <span class="c1">-- Break in half, via de-interleaving (i.e. - DIT).</span>
                        
 <span class="c1">-- Phasor, as a function of tree depth.</span>
 <span class="nf">phasor</span> <span class="ow">::</span> <span class="p">(</span><span class="kt">IsNat</span> <span class="n">n</span><span class="p">,</span> <span class="kt">RealFloat</span> <span class="n">a</span><span class="p">,</span> <span class="kt">Enum</span> <span class="n">a</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="kt">Nat</span> <span class="n">n</span> <span class="ow">-&gt;</span> <span class="kt">RTree</span> <span class="n">n</span> <span class="p">(</span><span class="kt">Complex</span> <span class="n">a</span><span class="p">)</span>
@@ -665,7 +647,7 @@ $$<p>Note that (5) and (6) have the same form: concatenation of the sum and diff
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="kr">import</span> <span class="nn">Prelude</span> <span class="k">hiding</span> <span class="p">(</span><span class="nf">zip</span><span class="p">,</span><span class="nf">unzip</span><span class="p">,</span><span class="nf">zipWith</span><span class="p">)</span>
@@ -738,7 +720,7 @@ $$<p>Note that (5) and (6) have the same form: concatenation of the sum and diff
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="kr">import</span> <span class="nn">Data.Foldable</span> <span class="p">(</span><span class="nf">foldl&#39;</span><span class="p">)</span>
@@ -746,7 +728,7 @@ $$<p>Note that (5) and (6) have the same form: concatenation of the sum and diff
 <span class="c1">-- FFT, as a class</span>
 <span class="c1">-- (The LScan constraint comes from the use of &#39;lproducts&#39;, in &#39;addPhase&#39;.)</span>
 <span class="kr">class</span> <span class="p">(</span><span class="kt">LScan</span> <span class="n">f</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="kt">FFT</span> <span class="n">f</span> <span class="n">a</span> <span class="kr">where</span>
-    <span class="n">fft</span>  <span class="ow">::</span> <span class="n">f</span> <span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">f</span> <span class="n">a</span>  <span class="c1">-- Computes the FFT of a functor.</span>
+    <span class="n">fft</span> <span class="ow">::</span> <span class="n">f</span> <span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">f</span> <span class="n">a</span>  <span class="c1">-- Computes the FFT of a functor.</span>
 
 <span class="c1">-- Note that this definition of the FFT instance for Pair assumes DIT.</span>
 <span class="c1">-- How can we eliminate this assumption and make this more general?</span>
@@ -794,7 +776,7 @@ $$<p>Note that (5) and (6) have the same form: concatenation of the sum and diff
 
 <pre><code>fft = inP (uncurry (+) &amp;&amp;&amp; uncurry (-)) . secondP addPhase . fmap fft</code></pre>
 <p>And, so, by removing the explicit definition of the degenerate case (i.e. - <em>Pair</em>) from the definition of the general case (i.e. - <em>RTree</em>), replacing it, instead, with an overloaded definition of the <em>fft</em> function, via the Haskell type class mechanism, we're making the "ping-pongy" nature of the logarithmic breakdown, which transforms a DFT into a FFT more explicit in our code: we start by asking for the FFT of some data structure (RTree, in this case), then we split that structure into pairs and ask for the FFT of that pair, which in turn brings us back to asking for the FFT of the original structure, half as large. At some point, we'll find ourselves asking for the FFT of a pair of numbers, as opposed to a pair of structures, and the recursion will terminate. At that point, we'll begin unwinding the recursion stack, and assembling the final answer.</p>
-<p>We've come a long way from our original List based implementation of the FFT. However, we still have not achieved our goal of a completly general description. Note, for instance, that we are having to explicitly define the <em>inDIT</em> function, which splits the original data structure into two pieces in just the right way, so as to effect a FFT. Note, furthermore, that each new functor for which we'd like to define an FFT instance will need its own unique definition of this function. If we did an instance for <em>LTree</em>, we'd need to find its alternatives to toB and bottomSplit, as those functions don't exist for LTree. Even more insidiously, if more subtly, note that our FFT instance for Pair presumes that we're using <em>decimation in time</em> (DIT) to perform the logarithmic breakdown. What if we wanted to use the other choice: decimation in <em>frequency</em> (DIF)? In that case, we'd need two things:</p>
+<p>We've come a long way from our original List based implementation of the FFT. However, we still have not achieved our goal of a completely general description. Note, for instance, that we are having to explicitly define the <em>inDIT</em> function, which splits the original data structure into two pieces in just the right way, so as to effect a FFT. Note, furthermore, that each new functor for which we'd like to define an FFT instance will need its own unique definition of this function. If we did an instance for <em>LTree</em>, we'd need to find its alternatives to toB and bottomSplit, as those functions don't exist for LTree. Even more insidiously, if more subtly, note that our FFT instance for Pair presumes that we're using <em>decimation in time</em> (DIT) to perform the logarithmic breakdown. What if we wanted to use the other choice: decimation in <em>frequency</em> (DIF)? In that case, we'd need two things:</p>
 <ul>
 <li>a different instancing of FFT for Pair, and</li>
 <li>a new function: <em>inDIF</em>, for every data structure we'd like to make an FFT instance of.</li>
@@ -819,7 +801,7 @@ fft :: RealFloat a =&gt; f (g (Complex a)) -&gt; f (g (Complex a))  -- for a pai
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="kr">import</span> <span class="nn">Prelude</span> <span class="k">hiding</span> <span class="p">(</span><span class="nf">id</span><span class="p">,(</span><span class="o">.</span><span class="p">))</span>
@@ -898,7 +880,7 @@ fft :: RealFloat a =&gt; f (g (Complex a)) -&gt; f (g (Complex a))  -- for a pai
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="kr">type</span> <span class="kt">DFTTy</span> <span class="n">f</span> <span class="n">f&#39;</span> <span class="ow">=</span> <span class="n">forall</span> <span class="n">a</span><span class="o">.</span> <span class="kt">RealFloat</span> <span class="n">a</span> <span class="ow">=&gt;</span> <span class="n">f</span> <span class="p">(</span><span class="kt">Complex</span> <span class="n">a</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="n">f&#39;</span> <span class="p">(</span><span class="kt">Complex</span> <span class="n">a</span><span class="p">)</span>
@@ -943,14 +925,14 @@ fft :: RealFloat a =&gt; f (g (Complex a)) -&gt; f (g (Complex a))  -- for a pai
   <span class="n">fft&#39;</span> <span class="ow">=</span> <span class="n">fft&#39;&#39;</span> <span class="n">nat</span>
    <span class="kr">where</span>
      <span class="n">fft&#39;&#39;</span> <span class="ow">::</span> <span class="kt">Nat</span> <span class="n">m</span> <span class="ow">-&gt;</span> <span class="kt">DFTTy</span> <span class="p">(</span><span class="kt">LTree</span> <span class="n">m</span><span class="p">)</span> <span class="p">(</span><span class="kt">RTree</span> <span class="n">m</span><span class="p">)</span>
-     <span class="n">fft&#39;&#39;</span> <span class="kt">Zero</span>     <span class="ow">=</span> <span class="kt">RL</span>          <span class="o">.</span>        <span class="n">l_unL</span>
+     <span class="n">fft&#39;&#39;</span> <span class="kt">Zero</span>     <span class="ow">=</span> <span class="kt">RL</span>          <span class="o">.</span>         <span class="n">l_unL</span>
      <span class="n">fft&#39;&#39;</span> <span class="p">(</span><span class="kt">Succ</span> <span class="kr">_</span><span class="p">)</span> <span class="ow">=</span> <span class="kt">RB</span> <span class="o">.</span> <span class="n">unO</span> <span class="o">.</span> <span class="n">fft&#39;</span> <span class="o">.</span> <span class="kt">O</span> <span class="o">.</span> <span class="n">l_unB</span>
 
 <span class="kr">instance</span> <span class="kt">IsNat</span> <span class="n">n</span> <span class="ow">=&gt;</span> <span class="kt">FFT&#39;</span> <span class="p">(</span><span class="kt">RTree</span> <span class="n">n</span><span class="p">)</span> <span class="p">(</span><span class="kt">LTree</span> <span class="n">n</span><span class="p">)</span> <span class="kr">where</span>
   <span class="n">fft&#39;</span> <span class="ow">=</span> <span class="n">fft&#39;&#39;</span> <span class="n">nat</span>
    <span class="kr">where</span>
      <span class="n">fft&#39;&#39;</span> <span class="ow">::</span> <span class="kt">Nat</span> <span class="n">m</span> <span class="ow">-&gt;</span> <span class="kt">DFTTy</span> <span class="p">(</span><span class="kt">RTree</span> <span class="n">m</span><span class="p">)</span> <span class="p">(</span><span class="kt">LTree</span> <span class="n">m</span><span class="p">)</span>
-     <span class="n">fft&#39;&#39;</span> <span class="kt">Zero</span>     <span class="ow">=</span> <span class="kt">LL</span>          <span class="o">.</span>        <span class="n">r_unL</span>
+     <span class="n">fft&#39;&#39;</span> <span class="kt">Zero</span>     <span class="ow">=</span> <span class="kt">LL</span>          <span class="o">.</span>         <span class="n">r_unL</span>
      <span class="n">fft&#39;&#39;</span> <span class="p">(</span><span class="kt">Succ</span> <span class="kr">_</span><span class="p">)</span> <span class="ow">=</span> <span class="kt">LB</span> <span class="o">.</span> <span class="n">unO</span> <span class="o">.</span> <span class="n">fft&#39;</span> <span class="o">.</span> <span class="kt">O</span> <span class="o">.</span> <span class="n">r_unB</span>
      
 <span class="nf">res</span> <span class="ow">=</span> <span class="n">dft</span> <span class="o">$</span> <span class="n">map</span> <span class="p">(</span><span class="kt">:+</span> <span class="mf">0.0</span><span class="p">)</span> <span class="p">[</span><span class="mf">0.0</span> <span class="ow">::</span> <span class="kt">PrettyDouble</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">]</span>
@@ -1011,6 +993,15 @@ fft :: RealFloat a =&gt; f (g (Complex a)) -&gt; f (g (Complex a))  -- for a pai
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><a href="#contents">Back to Contents</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Exploring-the-new-code-">Exploring the new code <a name="exploring_the_new_code" /><a class="anchor-link" href="#Exploring-the-new-code-">&#182;</a></h3><h4 id="FFT-Class-Definition-">FFT Class Definition <a name="fft_class_definition" /><a class="anchor-link" href="#FFT-Class-Definition-">&#182;</a></h4><p>The first thing that stands out in Conal's new code is the type signature of both the <em>FFT</em> class definition, as well as its sole member function:</p>
 
 <pre><code>type DFTTy f f' = forall a. RealFloat a =&gt; f (Complex a) -&gt; f' (Complex a)
@@ -1026,7 +1017,7 @@ class FFT' f f' | f -&gt; f' where
          , FFT' f f', FFT' g g', LScan f, LScan g', Sized f, Sized g' ) =&gt;
   FFT' (g :. f) (f' :. g') where
     fft' = inO (transpose . fmap fft' . transpose . twiddle . fmap fft' . transpose)</code></pre>
-<p>Note the transposition of functors in the instance head (i.e. - from <em>(g :. f)</em> to <em>(f' :. g')</em>). Furthermore, note the odd number of calls to the <em>transpose</em> function, in the definition of fft. Finally, recall that the first step in breaking down the DFT computation is a "de-interleaving" process, whereby we separate the even and odd members of the original data set. Note that in completing the DFT =&gt; FFT conversion we <strong>never undo this de-interleaving</strong>. The transpose function, above, provides this de-interleaving (at least, for the DIT case) in a generic way, assuming very little about the nature of the enclosing functor. (It must just be a <em>Traversable</em>.) The fact that we don't want to undo this de-interleaving is consistent with an odd number of calls to transpose, in the definition of fft. However, such an application of an odd number of calls to the transpose function necessrily leaves a functor composition in an "inverted" state, where the outer functor has become the inner and vice versa. And, so, we see that Conal's insight, above (i.e. - giving both the class and its sole member function the freedom to transform the enclosing functor), was absolutely necessary, in order to express the FFT of a functor composition in its most natural and elegant form.</p>
+<p>Note the transposition of functors in the instance head (i.e. - from <em>(g :. f)</em> to <em>(f' :. g')</em>). Furthermore, note the odd number of calls to the <em>transpose</em> function, in the definition of fft. Finally, recall that the first step in breaking down the DFT computation is a "de-interleaving" process, whereby we separate the even and odd members of the original data set. Note that in completing the DFT =&gt; FFT conversion we <strong>never undo this de-interleaving</strong>. The transpose function, above, provides this de-interleaving (at least, for the DIT case) in a generic way, assuming very little about the nature of the enclosing functor. (It must just be a <em>Traversable</em>.) The fact that we don't want to undo this de-interleaving is consistent with an odd number of calls to transpose, in the definition of fft. However, such an application of an odd number of calls to the transpose function necessarily leaves a functor composition in an "inverted" state, where the outer functor has become the inner and vice versa. And, so, we see that Conal's insight, above (i.e. - giving both the class and its sole member function the freedom to transform the enclosing functor), was absolutely necessary, in order to express the FFT of a functor composition in its most natural and elegant form.</p>
 <h4 id="Pair-Instance-">Pair Instance <a name="pair_instance" /><a class="anchor-link" href="#Pair-Instance-">&#182;</a></h4><p>Next, consider Conal's <em>FFT</em> instance for <em>Pair</em>:</p>
 
 <pre><code>instance FFT' Pair Pair where
@@ -1054,9 +1045,19 @@ class FFT' f f' | f -&gt; f' where
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><a href="#contents">Back to Contents</a></p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="kt">:</span><span class="n">t</span> <span class="n">myLTree</span>
@@ -1185,7 +1186,7 @@ font-weight: bold;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="nf">res</span> <span class="ow">=</span> <span class="n">l_unB</span> <span class="n">myLTree</span>
@@ -1316,7 +1317,7 @@ font-weight: bold;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="nf">res2</span> <span class="ow">=</span> <span class="n">transpose</span> <span class="n">res</span>
@@ -1447,7 +1448,7 @@ font-weight: bold;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="nf">res3</span> <span class="ow">=</span> <span class="n">fmap</span> <span class="n">fft&#39;</span> <span class="n">res2</span>
@@ -1577,7 +1578,7 @@ font-weight: bold;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="nf">res4</span> <span class="ow">=</span> <span class="n">twiddle</span> <span class="n">res3</span>
@@ -1708,7 +1709,7 @@ font-weight: bold;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="nf">res5</span> <span class="ow">=</span> <span class="n">transpose</span> <span class="n">res4</span>
@@ -1862,7 +1863,7 @@ $$<p>And we see that we are getting the desired result.</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="nf">res6</span> <span class="ow">=</span> <span class="kt">RB</span> <span class="o">.</span> <span class="n">transpose</span> <span class="o">.</span> <span class="n">fmap</span> <span class="n">fft&#39;</span> <span class="o">$</span> <span class="n">res5</span>
@@ -1992,7 +1993,7 @@ font-weight: bold;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="nf">dft</span> <span class="o">$</span> <span class="n">map</span> <span class="p">(</span><span class="kt">:+</span> <span class="mi">0</span><span class="p">)</span> <span class="p">[</span><span class="mi">0</span> <span class="ow">::</span> <span class="kt">PrettyDouble</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
@@ -2038,7 +2039,7 @@ But, why not just make use of the <em>Num</em> instance defined for <em>RTree</e
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="nf">res7</span> <span class="ow">=</span> <span class="kt">RB</span> <span class="o">.</span> <span class="n">fft&#39;</span> <span class="o">$</span> <span class="n">res4</span>
@@ -2159,7 +2160,7 @@ font-weight: bold;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="kt">:</span><span class="n">t</span> <span class="kt">RB</span>
@@ -2279,7 +2280,7 @@ font-weight: bold;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="kt">:</span><span class="n">t</span> <span class="n">res4</span>
@@ -2406,7 +2407,7 @@ a = Complex PrettyDouble</code></pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="kt">:</span><span class="n">t</span> <span class="kt">RB</span> <span class="o">.</span> <span class="n">fft&#39;</span>
@@ -2515,7 +2516,7 @@ font-weight: bold;
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-haskell"><pre><span class="kt">:</span><span class="n">t</span> <span class="n">fft&#39;</span>
@@ -2627,10 +2628,165 @@ font-weight: bold;
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>And, finally, we see that the problem is we're trying to apply <em>fft'</em> directly to a <em>nested</em> functor. Its type signature doesn't allow that! I alluded to this, above, when I mentioned the "funny problem" we bump into, when we try to apply the overloaded fft' function to both pairs of scalars and pairs of structrues. Now, you've seen the details of this funny problem, in all their gory detail.</p>
+<p>And, finally, we see that the problem is we're trying to apply <em>fft'</em> directly to a <em>nested</em> functor. Its type signature doesn't allow that! I alluded to this, above, when I mentioned the "funny problem" we bump into, when we try to apply the overloaded fft' function to both pairs of scalars and pairs of structures. Now, you've seen the details of this funny problem, in all their gory detail.</p>
 <p>So, we must map the fft' function over the enclosing functor, in order to avoid type errors, and since we must map, we must also transpose twice, in order to get the correct answer.</p>
 <p>So, there you have it; the power and elegance of functor composition brought to bear on the problem of expressing the FFT in a completely generic way, ala Conal Elliott. If you're reading this, thank you! for your interest in our little project. And, if you think you might be interested in working on it with us, please, let us know; we'd love to hear from you. :)</p>
 <p>Lastly, I want to express my grattitude to Conal for having taken me under his tutelage, as I struggle to understand these higher level programming concepts and constructs and for his loving patience with my rather pedantic mode of learning. Thanks, Conal!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><a href="#contents">Back to Contents</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Afterword-">Afterword <a name="afterword" /><a class="anchor-link" href="#Afterword-">&#182;</a></h2><p>Just before switching gears to Conal's functor composition approach, we mentioned that we might be able to solve our <em>fft</em> type problem, by defining it to operate on a nested pair of functors and simply setting the inner functor to <em>Identity</em> when appropriate. Let's investigate that a bit further and see where it leads. We'll start by following Conal's lead and using the degenerate case for the Pair instance, so as not to force a DIT implementation, and see if we can make that work.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-haskell"><pre><span class="kr">import</span> <span class="nn">Data.Functor.Identity</span> <span class="p">(</span><span class="kt">Identity</span><span class="p">)</span>
+
+<span class="kr">class</span> <span class="p">(</span><span class="kt">LScan</span> <span class="n">f</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="kt">FFT</span> <span class="n">f</span> <span class="n">g</span> <span class="n">a</span> <span class="kr">where</span>
+    <span class="n">fft</span> <span class="ow">::</span> <span class="n">f</span> <span class="p">(</span><span class="n">g</span> <span class="n">a</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="n">f</span> <span class="p">(</span><span class="n">g</span> <span class="n">a</span><span class="p">)</span>
+
+<span class="c1">-- instance (Num (g a)) =&gt; FFT Pair (g a) where</span>
+<span class="kr">instance</span> <span class="p">(</span><span class="kt">Num</span> <span class="p">(</span><span class="n">g</span> <span class="n">a</span><span class="p">))</span> <span class="ow">=&gt;</span> <span class="kt">FFT</span> <span class="kt">Pair</span> <span class="n">g</span> <span class="n">a</span> <span class="kr">where</span>
+    <span class="n">fft</span> <span class="ow">=</span> <span class="n">inP</span> <span class="p">(</span><span class="n">uncurry</span> <span class="p">(</span><span class="o">+</span><span class="p">)</span> <span class="o">&amp;&amp;&amp;</span> <span class="n">uncurry</span> <span class="p">(</span><span class="o">-</span><span class="p">))</span>
+
+<span class="kr">instance</span> <span class="p">(</span><span class="kt">IsNat</span> <span class="n">n</span><span class="p">,</span> <span class="kt">RealFloat</span> <span class="n">a</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="kt">FFT</span> <span class="p">(</span><span class="kt">RTree</span> <span class="n">n</span><span class="p">)</span> <span class="kt">Identity</span> <span class="p">(</span><span class="kt">Complex</span> <span class="n">a</span><span class="p">)</span> <span class="kr">where</span>
+    <span class="n">fft</span> <span class="ow">=</span> <span class="n">fft&#39;</span> <span class="n">nat</span>
+        <span class="c1">-- where   fft&#39; :: (RealFloat a) =&gt; Nat n -&gt; RTree n (Complex a) -&gt; RTree n (Complex a)</span>
+        <span class="kr">where</span>   <span class="n">fft&#39;</span> <span class="ow">::</span> <span class="p">(</span><span class="kt">RealFloat</span> <span class="n">a</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="kt">Nat</span> <span class="n">n</span> <span class="ow">-&gt;</span> <span class="kt">RTree</span> <span class="n">n</span> <span class="p">(</span><span class="kt">Identity</span> <span class="p">(</span><span class="kt">Complex</span> <span class="n">a</span><span class="p">))</span> <span class="ow">-&gt;</span> <span class="kt">RTree</span> <span class="n">n</span> <span class="p">(</span><span class="kt">Identity</span> <span class="p">(</span><span class="kt">Complex</span> <span class="n">a</span><span class="p">))</span>
+                <span class="n">fft&#39;</span> <span class="kt">Zero</span>     <span class="ow">=</span> <span class="n">id</span>
+                <span class="n">fft&#39;</span> <span class="p">(</span><span class="kt">Succ</span> <span class="kr">_</span><span class="p">)</span> <span class="ow">=</span> <span class="n">inDIT</span> <span class="n">fft</span>
+                    <span class="kr">where</span>   <span class="n">inDIT</span> <span class="n">g</span> <span class="ow">=</span> <span class="n">r_toB</span> <span class="o">.</span> <span class="n">g</span> <span class="o">.</span> <span class="n">bottomSplit</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<style>/* Styles used for the Hoogle display in the pager */
+.hoogle-doc {
+display: block;
+padding-bottom: 1.3em;
+padding-left: 0.4em;
+}
+.hoogle-code {
+display: block;
+font-family: monospace;
+white-space: pre;
+}
+.hoogle-text {
+display: block;
+}
+.hoogle-name {
+color: green;
+font-weight: bold;
+}
+.hoogle-head {
+font-weight: bold;
+}
+.hoogle-sub {
+display: block;
+margin-left: 0.4em;
+}
+.hoogle-package {
+font-weight: bold;
+font-style: italic;
+}
+.hoogle-module {
+font-weight: bold;
+}
+.hoogle-class {
+font-weight: bold;
+}
+.get-type {
+color: green;
+font-weight: bold;
+font-family: monospace;
+display: block;
+white-space: pre-wrap;
+}
+.show-type {
+color: green;
+font-weight: bold;
+font-family: monospace;
+margin-left: 1em;
+}
+.mono {
+font-family: monospace;
+display: block;
+}
+.err-msg {
+color: red;
+font-style: italic;
+font-family: monospace;
+white-space: pre;
+display: block;
+}
+#unshowable {
+color: red;
+font-weight: bold;
+}
+.err-msg.in.collapse {
+padding-top: 0.7em;
+}
+.highlight-code {
+white-space: pre;
+font-family: monospace;
+}
+.suggestion-warning { 
+font-weight: bold;
+color: rgb(200, 130, 0);
+}
+.suggestion-error { 
+font-weight: bold;
+color: red;
+}
+.suggestion-name {
+font-weight: bold;
+}
+</style><span class='err-msg'>Could not deduce (Num (Identity (Complex a))) arising from a use of ‘IHaskell414.fft’<br/>from the context (LScan (RTree n), IsNat n, RealFloat a) bound by the instance declaration at <interactive>:5:10-69<br/>or from (RealFloat a) bound by the type signature for fft' :: RealFloat a => Nat n -> RTree n (Identity (Complex a)) -> RTree n (Identity (Complex a)) at <interactive>:8:25-114<br/>or from (n ~ S n1, IsNat n1) bound by a pattern with constructor Succ :: forall n. IsNat n => Nat n -> Nat (S n), in an equation for ‘fft'’ at <interactive>:11:23-28<br/>In the first argument of ‘inDIT’, namely ‘IHaskell414.fft’<br/>In the expression: inDIT interactive:IHaskell414.fft<br/>In an equation for ‘fft'’:<br/>    fft' (Succ _)<br/>      = inDIT interactive:IHaskell414.fft<br/>      where<br/>          inDIT g = r_toB . g . bottomSplit</span>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If we want to go any further down this path, we'd have to define a <em>Num</em> instance for <em>(Identity (Complex a))</em>, which seems awfully unnecessarily laborious and most inelegant. In fact, there's a more insidious problem lying in wait: if we ask for the FFT of a <em>Pair</em> of anything other than scalars, we're going to get the wrong answer, because the <em>FFT</em> instance defined for <em>Pair</em>, above, is only going to do the summing and differencing. That's fine for scalars, but incorrect for anything else, which requires a recursive call to <em>fft</em>, followed by "twiddling" of the second result.</p>
+<p>So, we quickly find that Conal's <em>Functor Composition</em> approach to this problem is much more than a clever trick to get around a problematic type error. It is, in fact, a fundamentally more powerful approach, which allows us the freedom to define the <em>FFT</em> instance for <em>Pair</em> degenerately, while still yielding the correct answer for any input. And, it is precisely the mechanics of functor composition, which allows us this freedom and convenience.</p>
 
 </div>
 </div>
